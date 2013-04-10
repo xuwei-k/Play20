@@ -1,11 +1,6 @@
 package play.api.libs.functional
 
-trait Monoid[A] {
-
-  def append(a1: A, a2: A): A
-  def identity: A
-
-}
+import scalaz.Monoid
 
 /* A practical variant of monoid act/action/operator (search on wikipedia)
  * - allows to take an element A to create a B
@@ -17,7 +12,7 @@ trait Reducer[A, B] {
   def unit(a: A): B
   def prepend(a: A, b: B): B
   def append(b: B, a: A): B
-  
+
 }
 
 object Reducer {

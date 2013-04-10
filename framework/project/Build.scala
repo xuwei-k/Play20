@@ -31,6 +31,7 @@ object BuildSettings {
   val buildSbtVersionBinaryCompatible = "0.12"
 
   val playCommonSettings = Seq(
+    libraryDependencies += "org.scalaz" %% "scalaz-core" % "7.0.0-RC2",
     organization := buildOrganization,
     version := buildVersion,
     scalaVersion := buildScalaVersion,
@@ -213,8 +214,8 @@ object PlayBuild extends Build {
 
   lazy val PlayFiltersHelpersProject = PlayRuntimeProject("Filters-Helpers", "play-filters-helpers")
     .dependsOn(PlayProject)
-    
-    
+
+
   import RepositoryBuilder._
   lazy val RepositoryProject = Project(
       "Play-Repository", file("repository"))
@@ -228,7 +229,7 @@ object PlayBuild extends Build {
         "org.scala-sbt" % "sbt" % BuildSettings.buildSbtVersion
       )
     )
-    
+
   lazy val publishedProjects = Seq[ProjectReference](
     PlayProject,
     SbtLinkProject,
@@ -252,7 +253,7 @@ object PlayBuild extends Build {
     PlayExceptionsProject,
     PlayFiltersHelpersProject
   )
-    
+
   lazy val Root = Project(
     "Root",
     file("."))
