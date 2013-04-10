@@ -2,7 +2,7 @@ package play.api.libs.json
 
 import scala.language.higherKinds
 
-import scalaz.Monoid
+import scalaz.{Monoid, Reducer, UnitReducer}
 import scala.collection._
 import Json._
 import scala.annotation.implicitNotFound
@@ -103,11 +103,11 @@ object Reads extends ConstraintReads with PathReads with DefaultReads {
 
   implicit val JsObjectMonoid: Monoid[JsObject] = Monoid.instance(_ deepMerge _, JsObject(Seq()))
 
-  implicit val JsObjectReducer = Reducer[JsObject, JsObject]( o => o )
+  implicit val JsObjectReducer = UnitReducer[JsObject, JsObject]( o => o )
 
   implicit val JsArrayMonoid: Monoid[JsArray] = Monoid.instance(_ ++ _, JsArray())
 
-  implicit val JsArrayReducer = Reducer[JsValue, JsArray]( js => JsArray(Seq(js)) )
+  implicit val JsArrayReducer = UnitReducer[JsValue, JsArray]( js => JsArray(Seq(js)) )
 }
 
 /**
