@@ -8,6 +8,7 @@ import Json._
 import scala.annotation.implicitNotFound
 import play.api.data.validation.ValidationError
 import reflect.ClassTag
+import scalaz.{Contravariant => ContravariantFunctor, Applicative, Functor, Alternative}
 
 /**
  * Json deserializer: write an implicit to define a deserializer for any type.
@@ -15,7 +16,7 @@ import reflect.ClassTag
 @implicitNotFound(
   "No Json deserializer found for type ${A}. Try to implement an implicit Reads or Format for this type."
 )
-trait Reads[A] {
+trait Reads[+A] {
   self =>
   /**
    * Convert the JsValue into a A
@@ -66,21 +67,18 @@ object Reads extends ConstraintReads with PathReads with DefaultReads {
 
   val path: PathReads = this
 
-  import play.api.libs.functional._
-
   implicit def applicative(implicit applicativeJsResult:Applicative[JsResult]):Applicative[Reads] = new Applicative[Reads]{
 
-    def pure[A](a:A):Reads[A] = Reads[A] { _ => JsSuccess(a) }
+    override def point[A](a: => A):Reads[A] = Reads[A] { _ => JsSuccess(a) }
 
-    def map[A,B](m:Reads[A], f: A => B):Reads[B] = m.map(f)
-
-    def apply[A,B](mf:Reads[A => B], ma: Reads[A]):Reads[B] = new Reads[B]{ def reads(js: JsValue) = applicativeJsResult(mf.reads(js),ma.reads(js)) }
+    override def ap[A,B](ma: => Reads[A])(mf: => Reads[A => B]):Reads[B] = new Reads[B]{ def reads(js: JsValue) = applicativeJsResult.ap(ma.reads(js))(mf.reads(js))}
 
   }
 
   implicit def alternative(implicit a: Applicative[Reads]):Alternative[Reads] = new Alternative[Reads]{
     val app = a
-    def |[A,B >: A](alt1: Reads[A], alt2 :Reads[B]):Reads[B] = new Reads[B] {
+
+    override def plus[A](alt1: Reads[A], alt2: => Reads[A]):Reads[A] = new Reads[A] {
       def reads(js: JsValue) = alt1.reads(js) match {
         case r@JsSuccess(_,_) => r
         case r@JsError(es1) => alt2.reads(js) match {
@@ -89,16 +87,12 @@ object Reads extends ConstraintReads with PathReads with DefaultReads {
         }
       }
     }
-    def empty:Reads[Nothing] = new Reads[Nothing] { def reads(js: JsValue) = JsError(Seq()) }
+    override def empty[A]: Reads[A] = new Reads[Nothing] { def reads(js: JsValue) = JsError(Seq()) }
 
   }
 
   def apply[A](f: JsValue => JsResult[A]): Reads[A] = new Reads[A] {
     def reads(json: JsValue) = f(json)
-  }
-
-  implicit def functorReads(implicit a: Applicative[Reads]) = new Functor[Reads]{
-    def fmap[A, B](reads: Reads[A], f: A => B): Reads[B] = a.map(reads, f)
   }
 
   implicit val JsObjectMonoid: Monoid[JsObject] = Monoid.instance(_ deepMerge _, JsObject(Seq()))

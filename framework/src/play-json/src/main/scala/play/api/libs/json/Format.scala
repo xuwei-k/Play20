@@ -1,5 +1,7 @@
 package play.api.libs.json
+
 import scala.annotation.implicitNotFound
+import scalaz.{Contravariant => ContravariantFunctor, Applicative, Functor, Alternative}
 
 /**
  * Json formatter: write an implicit to define both a serializer and a deserializer for any type.
@@ -8,27 +10,27 @@ import scala.annotation.implicitNotFound
   "No Json formatter found for type ${A}. Try to implement an implicit Format for this type."
 )
 trait Format[A] extends Writes[A] with Reads[A]
-trait OFormat[A] extends OWrites[A] with Reads[A] with Format[A] 
+trait OFormat[A] extends OWrites[A] with Reads[A] with Format[A]
 
 object OFormat {
 
-  import play.api.libs.functional._
-
+/*
   implicit def functionalCanBuildFormats(implicit rcb: FunctionalCanBuild[Reads], wcb: FunctionalCanBuild[OWrites]): FunctionalCanBuild[OFormat] = new FunctionalCanBuild[OFormat] {
 
-    def apply[A,B](fa: OFormat[A], fb: OFormat[B]): OFormat[A~B] = 
-      OFormat[A~B](
+    def apply[A,B](fa: OFormat[A], fb: OFormat[B]): OFormat[(A, B)] =
+      OFormat[(A, B)](
         rcb(fa, fb),
         wcb(fa, fb)
       )
 
   }
 
-  implicit val invariantFunctorOFormat:InvariantFunctor[OFormat] = new InvariantFunctor[OFormat] {
+  implicit val invariantFunctorOFormat:Functor[OFormat] = new InvariantFunctor[OFormat] {
 
     def inmap[A,B](fa:OFormat[A], f1:A => B, f2: B => A): OFormat[B] = OFormat[B]( (js: JsValue) => fa.reads(js).map(f1), (b: B) => fa.writes(f2(b)))
 
   }
+  */
 
   implicit def GenericOFormat[T](implicit fjs: Reads[T], tjs: OWrites[T]): Format[T] = apply(fjs,tjs)
 
@@ -43,7 +45,7 @@ object OFormat {
   def apply[A](r: Reads[A], w: OWrites[A]):OFormat[A] = new OFormat[A] {
     def reads(js:JsValue):JsResult[A] = r.reads(js)
 
-    def writes(a:A):JsObject = w.writes(a)    
+    def writes(a:A):JsObject = w.writes(a)
   }
 }
 

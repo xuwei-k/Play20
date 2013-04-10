@@ -4,6 +4,7 @@ import Json._
 import scala.collection._
 import scala.annotation.implicitNotFound
 import scala.reflect.ClassTag
+import scalaz.{Contravariant => ContravariantFunctor, Applicative, Functor}
 
 /**
  * Json serializer: write an implicit to define a serializer for any type
@@ -24,7 +25,7 @@ trait Writes[-A] {
   def transform(transformer: JsValue => JsValue): Writes[A] = Writes[A]{ a => transformer(this.writes(a)) }
 
   /**
-   * transforms resulting JsValue using Writes[JsValue] 
+   * transforms resulting JsValue using Writes[JsValue]
    */
   def transform(transformer: Writes[JsValue]): Writes[A] = Writes[A]{ a => transformer.writes(this.writes(a)) }
 
@@ -40,14 +41,15 @@ trait OWrites[-A] extends Writes[A]{
 }
 
 object OWrites extends PathWrites with ConstraintWrites {
-  import play.api.libs.functional._
 
+/*
   implicit val functionalCanBuildOWrites:FunctionalCanBuild[OWrites] = new FunctionalCanBuild[OWrites] {
 
-    def apply[A,B](wa: OWrites[A], wb: OWrites[B]):OWrites[A~B] = OWrites[A~B]{ case a ~ b => wa.writes(a).deepMerge(wb.writes(b)) }
+    def apply[A,B](wa: OWrites[A], wb: OWrites[B]):OWrites[(A, B)] = OWrites[(A, B)]{ case (a, b) => wa.writes(a).deepMerge(wb.writes(b)) }
 
   }
 
+*/
   implicit val contravariantfunctorOWrites:ContravariantFunctor[OWrites] = new ContravariantFunctor[OWrites] {
 
     def contramap[A,B](wa:OWrites[A], f: B => A):OWrites[B] = OWrites[B]( b => wa.writes(f(b)) )
@@ -67,8 +69,6 @@ object Writes extends PathWrites with ConstraintWrites with DefaultWrites {
 
   val constraints: ConstraintWrites = this
   val path: PathWrites = this
-
-  import play.api.libs.functional._
 
   /*implicit val contravariantfunctorWrites:ContravariantFunctor[Writes] = new ContravariantFunctor[Writes] {
 
@@ -196,7 +196,7 @@ trait DefaultWrites {
    * Default Serializer java.uti.Date -> JsNumber(d.getTime (nb of ms))
    */
   implicit object DefaultDateWrites extends Writes[java.util.Date] {
-    def writes(d: java.util.Date): JsValue = JsNumber(d.getTime) 
+    def writes(d: java.util.Date): JsValue = JsNumber(d.getTime)
   }
 
   /**
@@ -211,7 +211,7 @@ trait DefaultWrites {
    * Default Serializer org.joda.time.DateTime -> JsNumber(d.getMillis (nb of ms))
    */
   implicit object DefaultJodaDateWrites extends Writes[org.joda.time.DateTime] {
-    def writes(d: org.joda.time.DateTime): JsValue = JsNumber(d.getMillis) 
+    def writes(d: org.joda.time.DateTime): JsValue = JsNumber(d.getMillis)
   }
 
 /**
