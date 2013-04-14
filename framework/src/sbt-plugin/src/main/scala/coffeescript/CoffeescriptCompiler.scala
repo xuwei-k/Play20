@@ -13,14 +13,13 @@ object CoffeescriptCompiler {
 
   private lazy val compiler = {
 
-    (source: File, bare: Boolean) => {
+    (source: File, bare: Boolean, coffeeFile: () => InputStream) => {
 
       withJsContext{ (ctx: Context, scope:Scriptable) =>
         val wrappedCoffeescriptCompiler = Context.javaToJS(this, scope)
         ScriptableObject.putProperty(scope, "CoffeescriptCompiler", wrappedCoffeescriptCompiler)
 
-        ctx.evaluateReader(scope, new InputStreamReader(
-          this.getClass.getClassLoader.getResource("coffee-script.js").openConnection().getInputStream()),
+        ctx.evaluateReader(scope, new InputStreamReader(coffeeFile()),
           "coffee-script.js",
           1, null)
 
@@ -72,12 +71,12 @@ object CoffeescriptCompiler {
     out.reverse.mkString("\n")
   }
 
-  def compile(source: File, options: Seq[String]): String = {
+  def compile(source: File, options: Seq[String], coffeeFile: () => InputStream): String = {
     try {
       if (options.size == 2 && options.headOption.filter(_ == "native").isDefined)
         play.core.jscompile.JavascriptCompiler.executeNativeCompiler(options.last + " " + source.getAbsolutePath, source)
       else
-        compiler(source, options.contains("bare"))
+        compiler(source, options.contains("bare"), coffeeFile)
     } catch {
       case e: JavaScriptException => {
 

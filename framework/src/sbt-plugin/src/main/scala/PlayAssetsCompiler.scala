@@ -4,6 +4,7 @@ import Keys._
 import PlayKeys._
 import PlayExceptions._
 import play.api.PlayException
+import java.io.InputStream
 
 // ----- Assets
 trait PlayAssetsCompiler {
@@ -97,13 +98,13 @@ trait PlayAssetsCompiler {
     closureCompilerOptions
   )
 
-  val CoffeescriptCompiler = AssetsCompiler("coffeescript",
+  def CoffeescriptCompiler(coffeeCompiler: () => InputStream)  = AssetsCompiler("coffeescript",
     (_ ** "*.coffee"),
     coffeescriptEntryPoints,
     { (name, min) => name.replace(".coffee", if (min) ".min.js" else ".js") },
     { (coffeeFile, options) =>
       import scala.util.control.Exception._
-      val jsSource = play.core.coffeescript.CoffeescriptCompiler.compile(coffeeFile, options)
+      val jsSource = play.core.coffeescript.CoffeescriptCompiler.compile(coffeeFile, options, coffeeCompiler)
       // Any error here would be because of CoffeeScript, not the developer;
       // so we don't want compilation to fail.
       val minified = catching(classOf[CompilationException]).opt(play.core.jscompile.JavascriptCompiler.minify(jsSource, Some(coffeeFile.getName())))

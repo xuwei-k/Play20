@@ -64,6 +64,8 @@ trait PlayKeys {
 
   val coffeescriptOptions = SettingKey[Seq[String]]("play-coffeescript-options")
 
+  val coffeescriptCompiler = SettingKey[() => java.io.InputStream]("play-coffeescript-compiler")
+
   val lessEntryPoints = SettingKey[PathFinder]("play-less-entry-points")
 
   val coffeescriptEntryPoints = SettingKey[PathFinder]("play-coffeescript-entry-points")

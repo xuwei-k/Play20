@@ -185,6 +185,10 @@ trait PlaySettings {
 
     lessOptions := Seq.empty[String],
     coffeescriptOptions := Seq.empty[String],
+
+    coffeescriptCompiler := { () =>
+      this.getClass.getClassLoader.getResource("coffee-script.js").openConnection().getInputStream()
+    },
     closureCompilerOptions := Seq.empty[String],
 
     // Settings
