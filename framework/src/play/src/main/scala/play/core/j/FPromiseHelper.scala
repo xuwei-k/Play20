@@ -49,6 +49,7 @@ private[play] object FPromiseHelper {
   def delayed[A](function: F.Function0[A], duration: Long, unit: TimeUnit, ec: ExecutionContext): F.Promise[A] =
     delayedWith(function.apply(), duration, unit, ec)
 
+  @throws[TimeoutException]
   def get[A](promise: F.Promise[A], timeout: Long, unit: TimeUnit): A =
     Await.result(promise.wrapped(), Duration(timeout, unit))
 

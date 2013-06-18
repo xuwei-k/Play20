@@ -11,7 +11,7 @@ import static org.fest.assertions.MapAssert.entry;
 public class PromiseTest {
 
     @Test
-    public void zip() {
+    public void zip() throws Exception {
         Promise<String> a = Promise.pure("a");
         Promise<Integer> b = Promise.pure(10);
         Tuple<String, Integer> ab = a.zip(b).get();

@@ -13,6 +13,7 @@ import org.openqa.selenium.htmlunit.*;
 
 
 import java.util.*;
+import java.util.concurrent.TimeoutException;
 
 /**
  * Helper functions to run tests.
@@ -45,7 +46,12 @@ public class Helpers implements play.mvc.Http.Status, play.mvc.Http.HeaderNames 
         if (result == null) {
             return null;
         } else {
-            final play.api.mvc.SimpleResult simpleResult = new Promise<play.api.mvc.SimpleResult>(result).get();
+            final play.api.mvc.SimpleResult simpleResult;
+            try{
+                simpleResult = new Promise<play.api.mvc.SimpleResult>(result).get();
+            }catch(TimeoutException e){
+                throw new RuntimeException(e);
+            }
             return new SimpleResult() {
                 public play.api.mvc.SimpleResult getWrappedSimpleResult() {
                     return simpleResult;

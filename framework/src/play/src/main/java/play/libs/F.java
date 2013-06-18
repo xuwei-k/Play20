@@ -332,7 +332,7 @@ public class F {
          * @deprecated Since 2.2. Use {@link #get(long, TimeUnit)} or {@link #get(long)} instead.
          */
         @Deprecated
-        public A get() {
+        public A get() throws TimeoutException {
             return FPromiseHelper.get(this, FPromiseHelper.defaultTimeout(), TimeUnit.MILLISECONDS);
         }
 
@@ -346,7 +346,7 @@ public class F {
          * @deprecated Since 2.2. Use {@link #get(long, TimeUnit)} instead.
          */
         @Deprecated
-        public A get(Long timeout, TimeUnit unit) {
+        public A get(Long timeout, TimeUnit unit) throws TimeoutException {
             return FPromiseHelper.get(this, timeout, unit);
         }
 
@@ -358,7 +358,7 @@ public class F {
          * @return The promised result
          * @throws Throwable if the calculation providing the promise threw an exception
          */
-        public A get(long timeout, TimeUnit unit) {
+        public A get(long timeout, TimeUnit unit) throws TimeoutException {
             return FPromiseHelper.get(this, timeout, unit);
         }
 
@@ -371,7 +371,7 @@ public class F {
          * @deprecated Since 2.2. Use {{@link #get(long)} instead.
          */
         @Deprecated
-        public A get(Long timeout) {
+        public A get(Long timeout) throws TimeoutException {
             return FPromiseHelper.get(this, timeout, TimeUnit.MILLISECONDS);
         }
 
@@ -382,7 +382,7 @@ public class F {
          * @return The promised result
          * @throws Throwable if the calculation providing the promise threw an exception
          */
-        public A get(long timeout) {
+        public A get(long timeout) throws TimeoutException {
             return FPromiseHelper.get(this, timeout, TimeUnit.MILLISECONDS);
         }
 
