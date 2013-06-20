@@ -49,17 +49,19 @@ object Dependencies {
 
     "org.javassist" % "javassist" % "3.16.1-GA",
 
+    "com.google.code.findbugs" % "jsr305" % "2.0.1",
+
+    specsBuild % "test")
+
+  val reflections = Seq(
+    "javax.servlet" % "javax.servlet-api" % "3.0.1",
+
     ("org.reflections" % "reflections" % "0.9.8" notTransitive ())
       .exclude("com.google.guava", "guava")
       .exclude("javassist", "javassist"),
 
-    guava,
-
-    "com.google.code.findbugs" % "jsr305" % "2.0.1",
-
-    "javax.servlet" % "javax.servlet-api" % "3.0.1",
-
-    specsBuild % "test")
+    guava
+  )
 
   val runtime = Seq(
     "io.netty" % "netty" % "3.6.3.Final",

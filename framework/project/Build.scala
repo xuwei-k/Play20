@@ -168,6 +168,9 @@ object PlayBuild extends Build {
     .settings(libraryDependencies := jdbcDeps)
     .dependsOn(PlayProject)
 
+  lazy val PlayReflections = PlayRuntimeProject("Play-Reflections", "play-reflections")
+    .settings(libraryDependencies := reflections)
+
   lazy val PlayJavaJdbcProject = PlayRuntimeProject("Play-Java-JDBC", "play-java-jdbc")
     .dependsOn(PlayJdbcProject, PlayJavaProject)
 
@@ -194,7 +197,7 @@ object PlayBuild extends Build {
 
   lazy val SlickProject = PlayRuntimeProject("Play-Slick", "play-slick")
     .settings(libraryDependencies := slickDependencies)
-    .dependsOn(PlayJdbcProject, PlayJavaProject, PlayTestProject % "test")
+    .dependsOn(PlayJdbcProject, PlayReflections, PlayTestProject % "test")
 
   lazy val PlayJpaProject = PlayRuntimeProject("Play-Java-JPA", "play-java-jpa")
     .settings(libraryDependencies := jpaDeps)
@@ -208,8 +211,7 @@ object PlayBuild extends Build {
 
   lazy val PlayJavaProject = PlayRuntimeProject("Play-Java", "play-java")
     .settings(libraryDependencies := javaDeps)
-    .dependsOn(PlayProject)
-    .dependsOn(PlayTestProject % "test")
+    .dependsOn(PlayProject, PlayReflections, PlayTestProject % "test")
 
   lazy val SbtPluginProject = PlaySbtProject("SBT-Plugin", "sbt-plugin")
     .settings(
