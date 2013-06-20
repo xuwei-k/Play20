@@ -49,10 +49,6 @@ object Dependencies {
 
     "org.javassist" % "javassist" % "3.16.1-GA",
 
-    ("org.reflections" % "reflections" % "0.9.8" notTransitive ())
-      .exclude("com.google.guava", "guava")
-      .exclude("javassist", "javassist"),
-
     guava,
 
     "com.google.code.findbugs" % "jsr305" % "2.0.1",
@@ -65,6 +61,10 @@ object Dependencies {
     "io.netty" % "netty" % "3.6.3.Final",
 
     "com.typesafe.netty" % "netty-http-pipelining" % "1.0.0",
+
+    ("org.reflections" % "reflections" % "0.9.8" notTransitive ())
+      .exclude("com.google.guava", "guava")
+      .exclude("javassist", "javassist"),
 
     "org.slf4j" % "slf4j-api" % "1.6.6",
     "org.slf4j" % "jul-to-slf4j" % "1.6.6",

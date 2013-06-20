@@ -194,7 +194,7 @@ object PlayBuild extends Build {
 
   lazy val SlickProject = PlayRuntimeProject("Play-Slick", "play-slick")
     .settings(libraryDependencies := slickDependencies)
-    .dependsOn(PlayJdbcProject, PlayJavaProject, PlayTestProject % "test")
+    .dependsOn(PlayJdbcProject, PlayTestProject % "test")
 
   lazy val PlayJpaProject = PlayRuntimeProject("Play-Java-JPA", "play-java-jpa")
     .settings(libraryDependencies := jpaDeps)
