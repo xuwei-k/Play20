@@ -156,19 +156,19 @@ package play.templates {
     abstract class TemplateTree
     abstract class ScalaExpPart
 
-    case class Params(code: String) extends Positional
-    case class Template(name: PosString, comment: Option[Comment], params: PosString, imports: Seq[Simple], defs: Seq[Def], sub: Seq[Template], content: Seq[TemplateTree]) extends Positional
-    case class PosString(str: String) extends Positional {
+    final case class Params(code: String) extends Positional
+    final case class Template(name: PosString, comment: Option[Comment], params: PosString, imports: Seq[Simple], defs: Seq[Def], sub: Seq[Template], content: Seq[TemplateTree]) extends Positional
+    final case class PosString(str: String) extends Positional {
       override def toString = str
     }
-    case class Def(name: PosString, params: PosString, code: Simple) extends Positional
-    case class Plain(text: String) extends TemplateTree with Positional
-    case class Display(exp: ScalaExp) extends TemplateTree with Positional
-    case class Comment(msg: String) extends TemplateTree with Positional
-    case class ScalaExp(parts: Seq[ScalaExpPart]) extends TemplateTree with Positional
-    case class Simple(code: String) extends ScalaExpPart with Positional
-    case class Block(whitespace: String, args: Option[PosString], content: Seq[TemplateTree]) extends ScalaExpPart with Positional
-    case class Value(ident: PosString, block: Block) extends Positional
+    final case class Def(name: PosString, params: PosString, code: Simple) extends Positional
+    final case class Plain(text: String) extends TemplateTree with Positional
+    final case class Display(exp: ScalaExp) extends TemplateTree with Positional
+    final case class Comment(msg: String) extends TemplateTree with Positional
+    final case class ScalaExp(parts: Seq[ScalaExpPart]) extends TemplateTree with Positional
+    final case class Simple(code: String) extends ScalaExpPart with Positional
+    final case class Block(whitespace: String, args: Option[PosString], content: Seq[TemplateTree]) extends ScalaExpPart with Positional
+    final case class Value(ident: PosString, block: Block) extends Positional
 
     def compile(source: File, sourceDirectory: File, generatedDirectory: File, formatterType: String, additionalImports: String = "") = {
       val resultType = formatterType + ".Appendable"
@@ -251,20 +251,30 @@ package play.templates {
         })
       }
 
+      import scalaz._
+
+      private implicit def toParserOps[A](parser: Parser[A]) = new ParserOps(parser)
+
+      private final class ParserOps[A](self: Parser[A]){
+        def ||[B](other: => Parser[B]): Parser[A \/ B] = Parser{ input =>
+          self(input) match{
+            case s @ Success(_, _) => s.map(-\/(_))
+            case Failure(_, next) => other(next).map(\/-(_))
+          }
+        }
+      }
+
       def several[T](p: => Parser[T]): Parser[List[T]] = Parser { in =>
         import scala.collection.mutable.ListBuffer
         val elems = new ListBuffer[T]
-        def continue(in: Input): ParseResult[List[T]] = {
-          val p0 = p // avoid repeatedly re-evaluating by-name parser
-          @tailrec
-          def applyp(in0: Input): ParseResult[List[T]] = p0(in0) match {
-            case Success(x, rest) => elems += x; applyp(rest)
-            case Failure(_, _) => Success(elems.toList, in0)
-            case err: Error => err
-          }
-          applyp(in)
+        val p0 = p // avoid repeatedly re-evaluating by-name parser
+        @tailrec
+        def applyp(in0: Input): ParseResult[List[T]] = p0(in0) match {
+          case Success(x, rest) => elems += x; applyp(rest)
+          case Failure(_, _) => Success(elems.toList, in0)
+          case err: Error => err
         }
-        continue(in)
+        applyp(in)
       }
 
       def at = "@"
@@ -458,20 +468,18 @@ package play.templates {
         }
       }
 
-      def templateContent: Parser[(List[Simple], List[Def], List[Template], List[TemplateTree])] = {
-        (several(importExpression | localDef | template | mixed)) ^^ {
-          case elems => {
-            elems.foldLeft((List[Simple](), List[Def](), List[Template](), List[TemplateTree]())) { (s, e) =>
-              e match {
-                case i: Simple => (s._1 :+ i, s._2, s._3, s._4)
-                case d: Def => (s._1, s._2 :+ d, s._3, s._4)
-                case v: Template => (s._1, s._2, s._3 :+ v, s._4)
-                case c: Seq[_] => (s._1, s._2, s._3, s._4 ++ c.asInstanceOf[Seq[TemplateTree]])
-              }
-            }
-          }
-        }
-      }
+      def union2product[A, B, C, D](list: List[((A \/ B) \/ C) \/ D]): (List[A], List[B], List[C], List[D]) =
+        list.foldRight((List[A](), List[B](), List[C](), List[D]())){(e, result) => e match{
+          case \/-(d)           => result.copy(_4 = d :: result._4)
+          case -\/(\/-(c))      => result.copy(_3 = c :: result._3)
+          case -\/(-\/(\/-(b))) => result.copy(_2 = b :: result._2)
+          case -\/(-\/(-\/(a))) => result.copy(_1 = a :: result._1)
+        }}
+
+      def templateContent: Parser[(List[Simple], List[Def], List[Template], List[TemplateTree])] =
+        several(importExpression || localDef || template || mixed).map{
+          l => union2product(l)
+        }.map{list => list.copy(_4 = list._4.flatten)}
 
       def parser: Parser[Template] = {
         opt(comment) ~ opt(whiteSpace) ~ opt(at ~> positioned((parentheses+) ^^ { case s => PosString(s.mkString) })) ~ templateContent ^^ {

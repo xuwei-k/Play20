@@ -117,6 +117,7 @@ object Dependencies {
 
   val templatesCompilerDependencies = Seq(
     scalaIoFileSbt,
+    "org.scalaz" %% "scalaz-core" % "7.0.0",
     "org.specs2" %% "specs2" % "1.12.3" % "test"
       exclude ("javax.transaction", "jta"))
 
