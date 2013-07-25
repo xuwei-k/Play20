@@ -595,7 +595,7 @@ object Parsing {
   case class Matched[A](val content: A) extends MatchInfo[A]
   case class Unmatched[A](val content: A) extends MatchInfo[A]
 
-  def search[T: ClassTag](needle: Array[T]): Enumeratee[Array[T], MatchInfo[Array[T]]] = new Enumeratee[Array[T], MatchInfo[Array[T]]] {
+  def search[@specialized(Byte) T: ClassTag](needle: Array[T]): Enumeratee[Array[T], MatchInfo[Array[T]]] = new Enumeratee[Array[T], MatchInfo[Array[T]]] {
     val needleSize = needle.size
     val fullJump = needleSize
     val jumpBadCharecter: (T => Int) = {
