@@ -161,8 +161,7 @@ object Dependencies {
   )
 
   val iterateesDependencies = Seq(
-    "org.scala-stm" %% "scala-stm" % "0.7",
-    "com.typesafe" % "config" % "1.2.1") ++
+    "org.scala-stm" %% "scala-stm" % "0.7") ++
     specsBuild.map(_ % "test")
 
   val jsonDependencies = Seq(
