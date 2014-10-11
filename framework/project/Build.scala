@@ -290,15 +290,15 @@ object PlayBuild extends Build {
       )
     )
     .dependsOn(PlayServerProject, StreamsProject)
-    .dependsOn(PlayTestProject % "test", PlayWsProject % "test")
+    .dependsOn(PlaySpecs2Project % "test", PlayWsProject % "test")
 
   lazy val PlayJdbcProject = PlayRuntimeProject("Play-JDBC", "play-jdbc")
     .settings(libraryDependencies ++= jdbcDeps)
-    .dependsOn(PlayProject).dependsOn(PlayTestProject % "test")
+    .dependsOn(PlayProject).dependsOn(PlaySpecs2Project % "test")
 
   lazy val PlayJavaJdbcProject = PlayRuntimeProject("Play-Java-JDBC", "play-java-jdbc").settings(libraryDependencies ++= javaJdbcDeps)
     .dependsOn(PlayJdbcProject, PlayJavaProject)
-    .dependsOn(PlayTestProject % "test")
+    .dependsOn(PlaySpecs2Project % "test")
 
   lazy val PlayEbeanProject = PlayRuntimeProject("Play-Java-Ebean", "play-java-ebean")
     .settings(
@@ -330,6 +330,12 @@ object PlayBuild extends Build {
       libraryDependencies ++= testDependencies,
       parallelExecution in Test := false
     ).dependsOn(PlayNettyServerProject)
+
+  lazy val PlaySpecs2Project = PlayRuntimeProject("Play-Specs2", "play-specs2")
+    .settings(
+      libraryDependencies ++= specsBuild,
+      parallelExecution in Test := false
+    ).dependsOn(PlayTestProject)
 
   lazy val PlayJavaProject = PlayRuntimeProject("Play-Java", "play-java")
     .settings(libraryDependencies ++= javaDeps ++ javaTestDeps)
@@ -363,6 +369,7 @@ object PlayBuild extends Build {
         val () = (publishLocal in RoutesCompilerProject).value
         val () = (publishLocal in SbtRunSupportProject).value
         val () = (publishLocal in PlayNettyServerProject).value
+        val () = (publishLocal in PlaySpecs2Project).value
         val () = (publishLocal in PlayTestProject).value
         val () = (publishLocal in PlayDocsProject).value
         val () = (publishLocal in PlayServerProject).value
@@ -382,7 +389,7 @@ object PlayBuild extends Build {
       // quieten deprecation warnings in tests
       scalacOptions in Test := (scalacOptions in Test).value diff Seq("-deprecation")
     ).dependsOn(PlayProject)
-    .dependsOn(PlayTestProject % "test")
+    .dependsOn(PlaySpecs2Project % "test")
 
   lazy val PlayWsJavaProject = PlayRuntimeProject("Play-Java-WS", "play-java-ws")
       .settings(
@@ -394,7 +401,7 @@ object PlayBuild extends Build {
   lazy val PlayFiltersHelpersProject = PlayRuntimeProject("Filters-Helpers", "play-filters-helpers")
     .settings(
       parallelExecution in Test := false
-    ).dependsOn(PlayProject, PlayTestProject % "test", PlayJavaProject % "test", PlayWsProject % "test")
+    ).dependsOn(PlayProject, PlaySpecs2Project % "test", PlayJavaProject % "test", PlayWsProject % "test")
 
   // This project is just for testing Play, not really a public artifact
   lazy val PlayIntegrationTestProject = PlayRuntimeProject("Play-Integration-Test", "play-integration-test")
@@ -403,7 +410,7 @@ object PlayBuild extends Build {
       libraryDependencies ++= integrationTestDependencies,
       previousArtifact := None
     )
-    .dependsOn(PlayProject % "test->test", PlayWsProject, PlayWsJavaProject, PlayTestProject)
+    .dependsOn(PlayProject % "test->test", PlayWsProject, PlayWsJavaProject, PlaySpecs2Project)
     .dependsOn(PlayFiltersHelpersProject)
     .dependsOn(PlayJavaProject)
 
@@ -412,7 +419,7 @@ object PlayBuild extends Build {
       libraryDependencies ++= playCacheDeps,
       parallelExecution in Test := false
     ).dependsOn(PlayProject)
-    .dependsOn(PlayTestProject % "test")
+    .dependsOn(PlaySpecs2Project % "test")
 
   import RepositoryBuilder._
   lazy val RepositoryProject = Project(
@@ -462,6 +469,7 @@ object PlayBuild extends Build {
     SbtRunSupportProject,
     RunSupportProject,
     SbtPluginProject,
+    PlaySpecs2Project,
     PlayTestProject,
     PlayExceptionsProject,
     PlayDocsProject,
