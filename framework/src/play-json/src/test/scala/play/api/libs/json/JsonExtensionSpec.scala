@@ -36,6 +36,13 @@ case class X(
   _16: String, _17: String, _18: String, _19: String, _20: String,
   _21: String, _22: String)
 
+case class TwentyThree(
+  _1: String, _2: String, _3: String, _4: String, _5: String,
+  _6: String, _7: String, _8: String, _9: String, _10: String,
+  _11: String, _12: String, _13: String, _14: String, _15: String,
+  _16: String, _17: String, _18: String, _19: String, _20: String,
+  _21: String, _22: String, _23: String)
+
 case class Program(id: Long, name: String, logoPath: Option[String], logoThumb: Option[String])
 object Program {
   def programs = List.empty[Program]
@@ -459,6 +466,11 @@ object JsonExtensionSpec extends Specification {
       implicit val XReads = Json.reads[X]
       implicit val XWrites = Json.writes[X]
       implicit val XFormat = Json.format[X]
+      success
+    }
+
+    "test 23 fields" in {
+      implicit val twentyThreeReads = Json.reads[TwentyThree]
       success
     }
 

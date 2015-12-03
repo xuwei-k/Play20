@@ -43,7 +43,7 @@ object JsMacroImpl {
 
     // Helper function to create parameter lists for function invocations based on whether this is a reads,
     // writes or both.
-    def conditionalList[T](ifReads: T, ifWrites: T): List[T] =
+    def conditionalList[T](ifReads: => T, ifWrites: => T): List[T] =
       (if (reads) List(ifReads) else Nil) :::
         (if (writes) List(ifWrites) else Nil)
 
@@ -78,12 +78,12 @@ object JsMacroImpl {
     val unapplySeq = companionType.decl(TermName("unapplySeq"))
     val hasVarArgs = unapplySeq != NoSymbol
 
-    val effectiveUnapply = Seq(unapply, unapplySeq).find(_ != NoSymbol) match {
+    lazy val effectiveUnapply = Seq(unapply, unapplySeq).find(_ != NoSymbol) match {
       case None => c.abort(c.enclosingPosition, "No unapply or unapplySeq function found")
       case Some(s) => s.asMethod
     }
 
-    val unapplyReturnTypes: Option[List[Type]] = effectiveUnapply.returnType match {
+    lazy val unapplyReturnTypes: Option[List[Type]] = effectiveUnapply.returnType match {
       case TypeRef(_, _, Nil) =>
         c.abort(c.enclosingPosition, s"Unapply of $companionObject has no parameters. Are you using an empty case class?")
         None
@@ -223,7 +223,7 @@ object JsMacroImpl {
       }
     }
 
-    val unapplyFunction = q"$unlift($companionObject.$effectiveUnapply)"
+    lazy val unapplyFunction = q"$unlift($companionObject.$effectiveUnapply)"
 
     // if case class has one single field, needs to use map/contramap/inmap on the Reads/Writes/Format instead of
     // canbuild.apply
