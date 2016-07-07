@@ -11,7 +11,7 @@ import play.data.format.Formatters;
 import views.html.helper.inputText
 import play.core.j.PlayMagicForJava.javaFieldtoScalaField
 import views.html.helper.FieldConstructor.defaultField
-import scala.collection.JavaConversions._
+import scala.collection.JavaConverters._
 import javax.validation.Validation
 
 /**
@@ -64,17 +64,17 @@ object DynamicFormSpec extends Specification {
     }
 
     "allow access to the property when filled" in {
-      val form = new DynamicForm(jMessagesApi, new Formatters(jMessagesApi), validator).fill(Map("foo" -> "bar"))
+      val form = new DynamicForm(jMessagesApi, new Formatters(jMessagesApi), validator).fill(Map("foo" -> "bar").asJava)
       form.get("foo") must_== "bar"
     }
 
     "allow access to the equivalent of the raw data when filled" in {
-      val form = new DynamicForm(jMessagesApi, new Formatters(jMessagesApi), validator).fill(Map("foo" -> "bar"))
+      val form = new DynamicForm(jMessagesApi, new Formatters(jMessagesApi), validator).fill(Map("foo" -> "bar").asJava)
       form("foo").value() must_== "bar"
     }
 
     "don't throw NullPointerException when all components of form are null" in {
-      val form = new DynamicForm(null, null, null).fill(Map("foo" -> "bar"))
+      val form = new DynamicForm(null, null, null).fill(Map("foo" -> "bar").asJava)
       form("foo").value() must_== "bar"
     }
 

@@ -13,7 +13,7 @@ import play.core.routing.HandlerInvokerFactory
 import play.mvc.Http.Context
 import play.mvc.Result
 import play.utils.UriEncoding
-import scala.collection.JavaConversions._
+import scala.collection.JavaConverters._
 
 import play.core.Execution.Implicits.trampoline
 
@@ -22,7 +22,7 @@ import scala.concurrent.Future
 
 private[routing] object RouterBuilderHelper {
   def build(router: RoutingDsl): play.routing.Router = {
-    val routes = router.routes.toList
+    val routes = router.routes.asScala.toList
 
     // Create the router
     play.api.routing.Router.from(Function.unlift { requestHeader =>
@@ -43,7 +43,7 @@ private[routing] object RouterBuilderHelper {
             }
 
             // Bind params if required
-            val params = groups.zip(route.params).map {
+            val params = groups.zip(route.params.asScala).map {
               case (param, routeParam) =>
                 val rawParam = if (routeParam.decode) {
                   UriEncoding.decodePathSegment(param, "utf-8")

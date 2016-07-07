@@ -21,7 +21,7 @@ import play.i18n.MessagesApi;
 import play.libs.Json;
 import play.libs.XML;
 import scala.Tuple2;
-import scala.collection.JavaConversions;
+import scala.collection.JavaConverters;
 import scala.collection.Seq;
 import scala.compat.java8.OptionConverters;
 
@@ -94,10 +94,10 @@ public class Http {
             this.header = request._underlyingHeader();
             this.id = header.id();
             this.response = new Response();
-            this.session = new Session(JavaConversions.mapAsJavaMap(header.session().data()));
-            this.flash = new Flash(JavaConversions.mapAsJavaMap(header.flash().data()));
+            this.session = new Session(JavaConverters.mapAsJavaMapConverter(header.session().data()).asJava());
+            this.flash = new Flash(JavaConverters.mapAsJavaMapConverter(header.flash().data()).asJava());
             this.args = new HashMap<String,Object>();
-            this.args.putAll(JavaConversions.mapAsJavaMap(header.tags()));
+            this.args.putAll(JavaConverters.mapAsJavaMapConverter(header.tags()).asJava());
         }
 
         /**
@@ -974,7 +974,7 @@ public class Http {
                 buildHeaders(),
                 remoteAddress,
                 secure,
-                OptionConverters.toScala(clientCertificateChain.map(lst -> scala.collection.JavaConversions.asScalaBuffer(lst).toSeq()))));
+                OptionConverters.toScala(clientCertificateChain.map(lst -> scala.collection.JavaConverters.asScalaBufferConverter(lst).asScala().toSeq()))));
         }
 
         // -------------------
@@ -1249,7 +1249,7 @@ public class Http {
           play.api.mvc.Cookies scalaCookies = scalaCookies();
           scala.Option<play.api.mvc.Cookie> cookie = scalaCookies.get(play.api.mvc.Flash$.MODULE$.COOKIE_NAME());
           scala.collection.Map<String,String> data = play.api.mvc.Flash$.MODULE$.decodeCookieToMap(cookie);
-          return JavaConversions.mapAsJavaMap(data);
+          return JavaConverters.mapAsJavaMapConverter(data).asJava();
         }
 
         /**
@@ -1272,7 +1272,7 @@ public class Http {
          */
         public RequestBuilder flash(Map<String,String> data) {
           play.api.mvc.Flash flash = new play.api.mvc.Flash(asScala(data));
-          cookies(JavaConversions.asScalaBuffer(Arrays.asList(play.api.mvc.Flash$.MODULE$.encodeAsCookie(flash))));
+          cookies(JavaConverters.asScalaBufferConverter(Arrays.asList(play.api.mvc.Flash$.MODULE$.encodeAsCookie(flash))).asScala());
           return this;
         }
 
@@ -1283,7 +1283,7 @@ public class Http {
           play.api.mvc.Cookies scalaCookies = scalaCookies();
           scala.Option<play.api.mvc.Cookie> cookie = scalaCookies.get(play.api.mvc.Session$.MODULE$.COOKIE_NAME());
           scala.collection.Map<String,String> data = play.api.mvc.Session$.MODULE$.decodeCookieToMap(cookie);
-          return JavaConversions.mapAsJavaMap(data);
+          return JavaConverters.mapAsJavaMapConverter(data).asJava();
         }
 
         /**
@@ -1306,7 +1306,7 @@ public class Http {
          */
         public RequestBuilder session(Map<String,String> data) {
           play.api.mvc.Session session = new play.api.mvc.Session(asScala(data));
-          cookies(JavaConversions.asScalaBuffer(Arrays.asList(play.api.mvc.Session$.MODULE$.encodeAsCookie(session))));
+          cookies(JavaConverters.asScalaBufferConverter(Arrays.asList(play.api.mvc.Session$.MODULE$.encodeAsCookie(session))).asScala());
           return this;
         }
 
@@ -1369,7 +1369,7 @@ public class Http {
         protected static scala.collection.immutable.Map<String,Seq<String>> mapListToScala(Map<String,List<String>> data) {
             Map<String,Seq<String>> seqs = new HashMap<>();
             for (String key: data.keySet()) {
-                seqs.put(key, JavaConversions.asScalaBuffer(data.get(key)));
+                seqs.put(key, JavaConverters.asScalaBufferConverter(data.get(key)).asScala());
             }
             return asScala(seqs);
         }
@@ -1381,7 +1381,7 @@ public class Http {
                     list.add(new Tuple2<>(entry.getKey(), value));
                 }
             }
-            return new Headers(JavaConversions.asScalaBuffer(list));
+            return new Headers(JavaConverters.asScalaBufferConverter(list).asScala());
         }
 
     }

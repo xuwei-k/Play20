@@ -10,7 +10,7 @@ import java.util.Locale
 import sbt._
 import sbt.Path._
 
-import scala.collection.JavaConversions
+import scala.collection.JavaConverters._
 import scala.reflect.ClassTag
 import scala.util.{ Properties, Try }
 import scala.util.control.NonFatal
@@ -38,7 +38,7 @@ trait FileWatchService {
    * @return A watcher
    */
   def watch(filesToWatch: List[File], onChange: Callable[Void]): FileWatcher = {
-    watch(JavaConversions.asScalaBuffer(filesToWatch), () => { onChange.call })
+    watch(filesToWatch.asScala, () => { onChange.call })
   }
 
 }
@@ -290,9 +290,9 @@ private[play] class JDK7FileWatchService(logger: LoggerProxy) extends FileWatchS
 
             val events = watchKey.pollEvents()
 
-            import scala.collection.JavaConversions._
+            import scala.collection.JavaConverters._
             // If a directory has been created, we must watch it and its sub directories
-            events.foreach { event =>
+            events.asScala.foreach { event =>
 
               if (event.kind == ENTRY_CREATE) {
                 val file = watchKey.watchable.asInstanceOf[Path].resolve(event.context.asInstanceOf[Path]).toFile

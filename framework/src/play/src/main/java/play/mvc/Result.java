@@ -10,7 +10,7 @@ import java.util.Optional;
 import play.api.mvc.ResponseHeader;
 import play.core.j.JavaResultExtractor;
 import play.http.HttpEntity;
-import scala.collection.JavaConversions;
+import scala.collection.JavaConverters;
 import scala.compat.java8.OptionConverters;
 
 import static play.mvc.Http.HeaderNames.*;
@@ -148,7 +148,7 @@ public class Result {
      * @return the immutable map of headers
      */
     public Map<String, String> headers() {
-        return Collections.unmodifiableMap(JavaConversions.mapAsJavaMap(this.header.headers()));
+        return Collections.unmodifiableMap(JavaConverters.mapAsJavaMapConverter(this.header.headers()).asJava());
     }
 
     /**

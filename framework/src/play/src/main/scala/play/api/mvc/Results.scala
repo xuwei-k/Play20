@@ -17,6 +17,7 @@ import play.core.utils.CaseInsensitiveOrdered
 import play.utils.UriEncoding
 
 import scala.collection.immutable.TreeMap
+import scala.collection.JavaConverters._
 
 /**
  * A simple HTTP response header, used for standard responses.
@@ -28,7 +29,7 @@ import scala.collection.immutable.TreeMap
  */
 final class ResponseHeader(val status: Int, _headers: Map[String, String] = Map.empty, val reasonPhrase: Option[String] = None) {
   private[play] def this(status: Int, _headers: java.util.Map[String, String], reasonPhrase: Option[String]) =
-    this(status, collection.JavaConversions.mapAsScalaMap(_headers).toMap, reasonPhrase)
+    this(status, _headers.asScala.toMap, reasonPhrase)
 
   val headers: Map[String, String] = TreeMap[String, String]()(CaseInsensitiveOrdered) ++ _headers
 

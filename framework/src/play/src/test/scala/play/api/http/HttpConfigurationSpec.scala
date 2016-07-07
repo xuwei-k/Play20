@@ -12,7 +12,7 @@ object HttpConfigurationSpec extends Specification {
 
   "HttpConfiguration" should {
 
-    import scala.collection.JavaConversions._
+    import scala.collection.JavaConverters._
 
     def properties = {
       Map(
@@ -33,7 +33,7 @@ object HttpConfigurationSpec extends Specification {
       )
     }
 
-    val configuration = new Configuration(ConfigFactory.parseMap(properties))
+    val configuration = new Configuration(ConfigFactory.parseMap(properties.asJava))
 
     "configure a context" in {
       val httpConfiguration = new HttpConfiguration.HttpConfigurationProvider(configuration).get
@@ -42,7 +42,7 @@ object HttpConfigurationSpec extends Specification {
 
     "throw an error when context does not starts with /" in {
       val config = properties + ("play.http.context" -> "something")
-      val wrongConfiguration = Configuration(ConfigFactory.parseMap(config))
+      val wrongConfiguration = Configuration(ConfigFactory.parseMap(config.asJava))
       new HttpConfiguration.HttpConfigurationProvider(wrongConfiguration).get must throwA[PlayException]
     }
 

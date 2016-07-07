@@ -45,11 +45,11 @@ trait EhCacheComponents {
  */
 class EhCacheModule extends Module {
 
-  import scala.collection.JavaConversions._
+  import scala.collection.JavaConverters._
 
   def bindings(environment: Environment, configuration: Configuration) = {
     val defaultCacheName = configuration.underlying.getString("play.cache.defaultCache")
-    val bindCaches = configuration.underlying.getStringList("play.cache.bindCaches").toSeq
+    val bindCaches = configuration.underlying.getStringList("play.cache.bindCaches").asScala.toSeq
     val createBoundCaches = configuration.underlying.getBoolean("play.cache.createBoundCaches")
 
     // Creates a named cache qualifier
