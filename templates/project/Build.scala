@@ -300,13 +300,13 @@ object Templates {
 
     },
 
-    publishTemplates <<= (doPublishTemplates, S3.delete, streams).apply { (dpt, s3delete, s) =>
+    publishTemplates := {
       for {
-        streams <- s
-        result <- dpt
+        streams <- streams.value
+        result <- doPublishTemplates.value
         _ <- {
           streams.log.info("Cleaning up S3...") 
-          s3delete
+          S3.delete.value
         }
       } yield result match {
         case true => ()
