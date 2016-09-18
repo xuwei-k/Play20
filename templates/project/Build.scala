@@ -42,7 +42,7 @@ object Templates {
   val zipTemplates = TaskKey[Seq[File]]("zipTemplates")
   val publishTemplatesTo = SettingKey[String]("publishTemplatesTo")
   val doPublishTemplates = TaskKey[Boolean]("doPublishTemplates")
-  val publishTemplates = TaskKey[Unit]("publishTemplates")
+  val publishTemplates = TaskKey[Int]("publishTemplates")
 
   val templateSettings: Seq[Setting[_]] = s3Settings ++ Seq(
     templates := Nil,
@@ -309,10 +309,10 @@ object Templates {
           S3.delete.taskValue
         }
       } yield result match {
-        case true => ()
+        case true => 1
         case false => throw new TemplatePublishFailed
       }
-    },
+    }.value,
 
     commands += templatesCommand
   )
