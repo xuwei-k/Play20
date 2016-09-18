@@ -42,7 +42,7 @@ object Templates {
   val zipTemplates = TaskKey[Seq[File]]("zipTemplates")
   val publishTemplatesTo = SettingKey[String]("publishTemplatesTo")
   val doPublishTemplates = TaskKey[Boolean]("doPublishTemplates")
-  val publishTemplates = TaskKey[Int]("publishTemplates")
+  val publishTemplates = TaskKey[Unit]("publishTemplates")
 
   val templateSettings: Seq[Setting[_]] = s3Settings ++ Seq(
     templates := Nil,
@@ -300,19 +300,19 @@ object Templates {
 
     },
 
-    publishTemplates := {
+    publishTemplates := (doPublishTemplates, S3.delete, streams).apply { (dpt, s3delete, s) =>
       for {
-        streams <- streams.taskValue
-        result <- doPublishTemplates.taskValue
+        streams <- s
+        result <- dpt
         _ <- {
           streams.log.info("Cleaning up S3...") 
-          S3.delete.taskValue
+          s3delete
         }
       } yield result match {
-        case true => 1
+        case true => ()
         case false => throw new TemplatePublishFailed
       }
-    },
+    }.value,
 
     commands += templatesCommand
   )
