@@ -312,7 +312,7 @@ object Templates {
         case true => 1
         case false => throw new TemplatePublishFailed
       }
-    }.value,
+    },
 
     commands += templatesCommand
   )
