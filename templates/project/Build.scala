@@ -302,11 +302,11 @@ object Templates {
 
     publishTemplates := {
       for {
-        streams <- streams.value
-        result <- doPublishTemplates.value
+        streams <- streams.taskValue
+        result <- doPublishTemplates.taskValue
         _ <- {
           streams.log.info("Cleaning up S3...") 
-          S3.delete.value
+          S3.delete.taskValue
         }
       } yield result match {
         case true => ()
