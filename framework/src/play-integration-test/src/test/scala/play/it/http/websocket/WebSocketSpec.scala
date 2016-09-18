@@ -25,9 +25,6 @@ import scala.concurrent.duration._
 import scala.concurrent.{ Future, Promise }
 import scala.reflect.ClassTag
 
-class NettyWebSocketSpec extends WebSocketSpec with NettyIntegrationSpecification
-class AkkaHttpWebSocketSpec extends WebSocketSpec with AkkaHttpIntegrationSpecification
-
 // class NettyPingWebSocketOnlySpec extends PingWebSocketSpec with NettyIntegrationSpecification
 //
 // These tests fail in Netty because there is no close frame returned from runWebSocket.
