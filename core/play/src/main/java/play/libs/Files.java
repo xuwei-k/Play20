@@ -313,8 +313,8 @@ public final class Files {
    * class behind the scenes.
    */
   public static class SingletonTemporaryFileCreator implements TemporaryFileCreator {
-    private play.api.libs.Files.SingletonTemporaryFileCreator$ instance =
-        play.api.libs.Files.SingletonTemporaryFileCreator$.MODULE$;
+    private play.api.libs.Files.SingletonTemporaryFileCreator instance =
+        new play.api.libs.Files.SingletonTemporaryFileCreator();
 
     @Override
     public TemporaryFile create(String prefix, String suffix) {

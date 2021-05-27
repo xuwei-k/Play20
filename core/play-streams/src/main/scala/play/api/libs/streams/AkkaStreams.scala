@@ -26,6 +26,12 @@ object AkkaStreams {
     bypassWith(Flow[In].map(splitter))
   }
 
+  // avoid overload for Scala 3
+  def bypassWithStrategy[In, FlowIn, Out](
+    splitter: Flow[In, Either[FlowIn, Out], _],
+    mergeStrategy: Graph[UniformFanInShape[Out, Out], _] = onlyFirstCanFinishMerge[Out](2)
+  ): Flow[FlowIn, Out, _] => Flow[In, Out, _] = bypassWith(splitter, mergeStrategy)
+
   /**
    * Using the given splitter flow, allow messages to bypass a flow.
    *
@@ -118,7 +124,7 @@ object AkkaStreams {
       // This pattern is an effective way to absorb cancellation, Sink.ignore will keep the broadcast always flowing
       // even after sink.inlet cancels.
       val broadcast = builder.add(Broadcast[T](2, eagerCancel = false))
-      broadcast.out(0) ~> ignore.in
+      //broadcast.out(0) ~> ignore.in
       FlowShape(broadcast.in, broadcast.out(1))
     })
   }

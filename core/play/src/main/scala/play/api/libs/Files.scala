@@ -476,13 +476,15 @@ object Files {
     lazy val get: TemporaryFileReaperConfiguration = TemporaryFileReaperConfiguration.fromConfiguration(configuration)
   }
 
+  object SingletonTemporaryFileCreator extends SingletonTemporaryFileCreator{}
+
   /**
    * Creates temporary folders using java.nio.file.Files.createTempFile.
    *
    * Files created by this method will not be cleaned up with the application
    * or JVM stops.
    */
-  object SingletonTemporaryFileCreator extends TemporaryFileCreator {
+  class SingletonTemporaryFileCreator extends TemporaryFileCreator {
     override def create(prefix: String, suffix: String): TemporaryFile = {
       val file = JFiles.createTempFile(prefix, suffix)
       new SingletonTemporaryFile(file, this)

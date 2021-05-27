@@ -72,6 +72,17 @@ object BuildSettings {
   /** These settings are used by all projects. */
   def playCommonSettings: Seq[Setting[_]] = Def.settings(
     fileHeaderSettings,
+    scalaVersion := "3.0.2-RC1-bin-20210708-7627583-NIGHTLY",
+    libraryDependencies ~= {
+      _.map { x =>
+        if (x.organization == "com.typesafe.play" && x.crossVersion.isInstanceOf[CrossVersion.Binary]) {
+          x.cross(CrossVersion.for3Use2_13)
+        } else {
+          x
+        }
+      }
+    },
+    scalacOptions ++= Seq("-Ykind-projector", "-source", "3.0-migration", "-Xignore-scala2-macros"),
     homepage := Some(url("https://playframework.com")),
     ivyLoggingLevel := UpdateLogging.DownloadOnly,
     resolvers ++= Seq(

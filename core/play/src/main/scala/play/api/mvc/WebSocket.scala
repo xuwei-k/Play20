@@ -108,10 +108,10 @@ object WebSocket {
     implicit val stringMessageFlowTransformer: MessageFlowTransformer[String, String] = {
       new MessageFlowTransformer[String, String] {
         def transform(flow: Flow[String, String, _]) = {
-          AkkaStreams.bypassWith[Message, String, Message](Flow[Message].collect {
+          AkkaStreams.bypassWithStrategy[Message, String, Message](Flow[Message].collect {
             case TextMessage(text) => Left(text)
             case BinaryMessage(_) =>
-              Right(CloseMessage(Some(CloseCodes.Unacceptable), "This WebSocket only supports text frames"))
+              Right(CloseMessage(Some(CloseCodes.Unacceptable), "This WebSocket only supports text frames"): Message)
           })(flow.map(TextMessage.apply))
         }
       }
@@ -123,10 +123,10 @@ object WebSocket {
     implicit val byteStringMessageFlowTransformer: MessageFlowTransformer[ByteString, ByteString] = {
       new MessageFlowTransformer[ByteString, ByteString] {
         def transform(flow: Flow[ByteString, ByteString, _]) = {
-          AkkaStreams.bypassWith[Message, ByteString, Message](Flow[Message].collect {
+          AkkaStreams.bypassWithStrategy[Message, ByteString, Message](Flow[Message].collect {
             case BinaryMessage(data) => Left(data)
             case TextMessage(_) =>
-              Right(CloseMessage(Some(CloseCodes.Unacceptable), "This WebSocket only supports binary frames"))
+              Right(CloseMessage(Some(CloseCodes.Unacceptable), "This WebSocket only supports binary frames"): Message)
           })(flow.map(BinaryMessage.apply))
         }
       }
@@ -152,7 +152,7 @@ object WebSocket {
 
       new MessageFlowTransformer[JsValue, JsValue] {
         def transform(flow: Flow[JsValue, JsValue, _]) = {
-          AkkaStreams.bypassWith[Message, JsValue, Message](Flow[Message].collect {
+          AkkaStreams.bypassWithStrategy[Message, JsValue, Message](Flow[Message].collect {
             case BinaryMessage(data) => closeOnException(Json.parse(data.iterator.asInputStream))
             case TextMessage(text)   => closeOnException(Json.parse(text))
           })(flow.map { json =>
